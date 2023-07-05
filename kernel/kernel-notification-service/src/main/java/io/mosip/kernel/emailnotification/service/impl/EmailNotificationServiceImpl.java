@@ -96,7 +96,8 @@ public class EmailNotificationServiceImpl implements EmailNotification<Multipart
 		LOGGER.info("To Request : " + String.join(",", mailTo));
 		LOGGER.info("Template Code : " + String.join(",", templateTypeCode));
 		LOGGER.info("Proxy : " + isProxytrue);
-
+		LOGGER.info("Mail Subject : " + String.join(",", mailSubject));
+		LOGGER.info("Mail Content : " + String.join(",", mailContent));
 		
 		try {
 			if(templateTypeCode != null) {
