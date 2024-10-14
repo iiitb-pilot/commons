@@ -3,8 +3,6 @@ package io.mosip.kernel.emailnotification.service.impl;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import io.mosip.kernel.core.templatemanager.spi.TemplateManager;
-import io.mosip.kernel.emailnotification.constant.ApiName;
 import io.mosip.kernel.emailnotification.exception.ApisResourceAccessException;
 import io.mosip.kernel.emailnotification.util.HTMLFormatter;
 import io.mosip.kernel.emailnotification.util.TemplateGenerator;
@@ -69,6 +67,9 @@ public class EmailNotificationServiceImpl implements EmailNotification<Multipart
 	@Value("${mosip.kernel.mail.content.template.code:#{null}}")
 	private String templateTypeCode;
 
+	@Value("${mosip.kernel.mail.content.template.language:eng}")
+	private String templateLanguage;
+
 	@Autowired
 	TemplateGenerator templateGenerator;
 
@@ -104,7 +105,7 @@ public class EmailNotificationServiceImpl implements EmailNotification<Multipart
 			if(templateTypeCode != null) {
 				Map<String, Object> attributes = new LinkedHashMap<>();
 				attributes.put("mailContent",htmlFormatter.formatText(mailContent));
-				InputStream stream = templateGenerator.getTemplate(templateTypeCode, attributes, MailNotifierConstants.LANGUAGE.getValue());
+				InputStream stream = templateGenerator.getTemplate(templateTypeCode, attributes, templateLanguage);
 				mailContent = IOUtils.toString(stream, "UTF-8");
 			}
 		} catch (IOException e) {
