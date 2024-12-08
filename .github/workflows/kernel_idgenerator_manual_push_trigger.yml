@@ -1,4 +1,4 @@
-name: Kernel Notification Maven Package upon a push
+name: Kernel ID Generator Maven Package upon a push
 
 
 on: workflow_dispatch
