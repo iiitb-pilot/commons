@@ -158,7 +158,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 
 		vertx.eventBus().send(UinGeneratorConstant.UIN_GENERATOR_ADDRESS, UINHealthConstants.PING, response -> {
 			try {
-				LOGGER.info("Calling verticleHealthHandler for triggering UIN Checker" +  (new ObjectMapper()).writeValueAsString(response));
+				LOGGER.info("Calling verticleHealthHandler for triggering UIN Checker" +  (new ObjectMapper()).writeValueAsString(response.result()));
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 			}
