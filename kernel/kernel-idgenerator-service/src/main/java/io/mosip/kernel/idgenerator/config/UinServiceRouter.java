@@ -116,6 +116,8 @@ public class UinServiceRouter {
 	}
 
 	private void configureHealthCheckEndpoint(Vertx vertx, Router router, final String servletPath) {
+		LOGGER.info("Calling configureHealthCheckEndpoint for triggering UIN Checker");
+
 		UinServiceHealthCheckerhandler healthCheckHandler = new UinServiceHealthCheckerhandler(vertx, null,
 				objectMapper, environment);
 		router.get(servletPath + UinGeneratorConstant.HEALTH_ENDPOINT).handler(healthCheckHandler);

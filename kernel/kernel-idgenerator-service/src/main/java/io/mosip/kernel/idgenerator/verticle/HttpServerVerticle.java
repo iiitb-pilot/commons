@@ -60,6 +60,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 	@Override
 	public void start(Future<Void> future) {
 		HttpServer httpServer = vertx.createHttpServer();
+		LOGGER.info("Calling HttpServerVerticle for triggering UIN Checker");
 
 		// Parent router so that global options can be applied to it in future
 		Router parentRouter = Router.router(vertx);

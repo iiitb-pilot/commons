@@ -154,7 +154,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	 * @param vertx  {@link Vertx} instance
 	 */
 	public void verticleHealthHandler(Future<Status> future, Vertx vertx) {
-
+		LOGGER.info("Calling verticleHealthHandler for triggering UIN Checker");
 		vertx.eventBus().send(UinGeneratorConstant.UIN_GENERATOR_ADDRESS, UINHealthConstants.PING, response -> {
 
 			if (response.succeeded()) {
