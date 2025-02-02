@@ -22,7 +22,7 @@ public interface UinService {
 	 * @return UinResponseDto
 	 */
 
-	UinResponseDto getUin(RoutingContext routingContext);
+	UinResponseDto getUin(RoutingContext routingContext, Long startTime);
 
 	/**
 	 * Update the status of the Uin from ISSUED to ASSIGNED

@@ -72,12 +72,15 @@ public class UinServiceImpl implements UinService {
 	 */
 	@Transactional
 	@Override
-	public UinResponseDto getUin(RoutingContext routingContext) {
+	public UinResponseDto getUin(RoutingContext routingContext, Long startTime) {
 		UinResponseDto uinResponseDto = new UinResponseDto();
+		LOGGER.info("THAM - Entering Service getUin() " + (System.currentTimeMillis() - startTime) + " ms" );
 		UinEntity uinBean = uinRepository.findFirstByStatus(UinGeneratorConstant.UNUSED);
+		LOGGER.info("THAM - Find one UIN getUin() " + (System.currentTimeMillis() - startTime) + " ms" );
 		if (uinBean != null) {
 			uinRepository.updateStatus(UinGeneratorConstant.ISSUED, authHandler.getContextUser(routingContext),
 					DateUtils.getUTCCurrentDateTime(), uinBean.getUin());
+			LOGGER.info("THAM - Update fetched UIN getUin() " + (System.currentTimeMillis() - startTime) + " ms" );
 			uinResponseDto.setUin(uinBean.getUin());
 		} else {
 			throw new UinNotFoundException(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),

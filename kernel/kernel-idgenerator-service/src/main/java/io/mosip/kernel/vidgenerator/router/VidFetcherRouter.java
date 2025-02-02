@@ -71,9 +71,11 @@ public class VidFetcherRouter {
 		Router router = Router.router(vertx);
 		authHandler.addAuthFilter(router, "/", HttpMethod.GET, "ID_REPOSITORY");
 		router.get().handler(routingContext -> {
-			LOGGER.info("publishing event to CHECKPOOL");
+			Long startTime = System.currentTimeMillis();
+			LOGGER.info("THAM2 - publishing event to CHECKPOOL" + (System.currentTimeMillis() - startTime) + " ms");
 			// send a publish event to vid pool checker
 			vertx.eventBus().publish(EventType.CHECKPOOL, EventType.CHECKPOOL);
+			LOGGER.info("THAM2 - publishing event COMPLETED" + (System.currentTimeMillis() - startTime) + " ms");
 			routingContext.response().headers().add("Content-Type", "application/json");
 			ResponseWrapper<VidFetchResponseDto> reswrp = new ResponseWrapper<>();
 			WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-vid", workerExecutorPool);
@@ -106,9 +108,13 @@ public class VidFetcherRouter {
 						return;
 					}
 				}
+				LOGGER.info("THAM2 - Date Validation Completed" + (System.currentTimeMillis() - startTime) + " ms");
+
 				VidFetchResponseDto vidFetchResponseDto = null;
 				try {
 					vidFetchResponseDto = vidService.fetchVid(expiryTime, routingContext);
+					LOGGER.info("THAM2 - Fetch VID Completed" + (System.currentTimeMillis() - startTime) + " ms");
+
 				} catch (VidGeneratorServiceException exception) {
 					ServiceError error = new ServiceError(exception.getErrorCode(), exception.getMessage());
 					setError(routingContext, error, blockingCodeHandler);

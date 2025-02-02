@@ -134,9 +134,15 @@ public class UinServiceRouter {
 		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool);
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
+				Long startTime = System.currentTimeMillis();
+				LOGGER.info("THAM - Entering getRouter Method " + (System.currentTimeMillis() - startTime) + " ms" );
 				checkAndGenerateUins(vertx);
+				LOGGER.info("THAM - getRouter checkAndGenerateUins() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+
 				UinResponseDto uin = new UinResponseDto();
-				uin = uinGeneratorService.getUin(routingContext);
+				uin = uinGeneratorService.getUin(routingContext, startTime);
+				LOGGER.info("THAM - getRouter getUin() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+
 				reswrp.setResponsetime(DateUtils.convertUTCToLocalDateTime(timestamp));
 				reswrp.setResponse(uin);
 				reswrp.setErrors(null);
@@ -205,11 +211,15 @@ public class UinServiceRouter {
 		UinStatusUpdateReponseDto uinresponse = null;
 		UinEntity uin;
 		RequestWrapper<UinEntity> reqwrp;
+		Long startTime = System.currentTimeMillis();
+		LOGGER.info("THAM - Entering updateRouter Method " + (System.currentTimeMillis() - startTime) + " ms" );
+
 		try {
 			reqwrp = objectMapper.readValue(routingContext.getBodyAsJson().toString(),
 					new TypeReference<RequestWrapper<UinEntity>>() {
 					});
 			uin = reqwrp.getRequest();
+			LOGGER.info("THAM - updateRouter preparing uin Entitiy " + (System.currentTimeMillis() - startTime) + " ms" );
 		} catch (Exception e) {
 			ServiceError error = new ServiceError(UinGeneratorErrorCode.INTERNAL_SERVER_ERROR.getErrorCode(),
 					e.getMessage());
@@ -223,6 +233,8 @@ public class UinServiceRouter {
 		}
 		try {
 			uinresponse = uinGeneratorService.updateUinStatus(uin, routingContext);
+			LOGGER.info("THAM - updateRouter Updating  uin Entitiy " + (System.currentTimeMillis() - startTime) + " ms" );
+
 			ResponseWrapper<UinStatusUpdateReponseDto> reswrp = new ResponseWrapper<>();
 			reswrp.setResponse(uinresponse);
 			reswrp.setId(reqwrp.getId());

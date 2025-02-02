@@ -58,7 +58,7 @@ public class UinGeneratorServiceTest {
 	public void getUinNotFoundTest() {
 
 		Mockito.when(uinRepository.findFirstByStatus("UNUSED")).thenReturn(null);
-		uinGeneratorServiceImpl.getUin(null);
+		uinGeneratorServiceImpl.getUin(null, System.currentTimeMillis());
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class UinGeneratorServiceTest {
 		Mockito.when(uinRepository.findFirstByStatus("UNUSED")).thenReturn(entity);
 		Mockito.when(uinRepository.save(Mockito.any())).thenReturn(entity);
 		Mockito.when(authHandler.getContextUser(routingContext)).thenReturn(TEST_USER);
-		uinGeneratorServiceImpl.getUin(routingContext);
+		uinGeneratorServiceImpl.getUin(routingContext, System.currentTimeMillis());
 
 	}
 
