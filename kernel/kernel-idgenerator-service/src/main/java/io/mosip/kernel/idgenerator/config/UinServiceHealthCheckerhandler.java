@@ -1,6 +1,6 @@
 package io.mosip.kernel.idgenerator.config;
 
-import static io.vertx.ext.healthchecks.impl.StatusHelper.isUp;
+import static io.vertx.ext.healthchecks.CheckResult.isUp;
 
 import java.io.File;
 import java.sql.Connection;
@@ -8,7 +8,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.function.Function;
 
+import io.vertx.core.*;
+import io.vertx.ext.healthchecks.CheckResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -21,10 +24,6 @@ import io.mosip.kernel.uingenerator.constant.HibernatePersistenceConstant;
 import io.mosip.kernel.uingenerator.constant.UINHealthConstants;
 import io.mosip.kernel.uingenerator.constant.UinGeneratorConstant;
 import io.netty.handler.codec.http.HttpResponse;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
@@ -80,13 +79,13 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	}
 
 	@Override
-	public HealthCheckHandler register(String name, Handler<Future<Status>> procedure) {
+	public HealthCheckHandler register(String name, Handler<Promise<Status>> procedure) {
 		healthChecks.register(name, procedure);
 		return this;
 	}
 
 	@Override
-	public HealthCheckHandler register(String name, long timeout, Handler<Future<Status>> procedure) {
+	public HealthCheckHandler register(String name, long timeout, Handler<Promise<Status>> procedure) {
 		healthChecks.register(name, timeout, procedure);
 		return this;
 	}
@@ -96,7 +95,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	 * 
 	 * @param future {@link Future} instance from handler
 	 */
-	public void databaseHealthChecker(Future<Status> future) {
+	public void databaseHealthChecker(Promise<Status> future) {
 
 		try {
 			Class.forName(driver);
@@ -131,7 +130,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	 * 
 	 * @param future {@link Future} instance from handler
 	 */
-	public void dispSpaceHealthChecker(Future<Status> future) {
+	public void dispSpaceHealthChecker(Promise<Status> future) {
 
 		final long diskFreeInBytes = this.currentWorkingDirPath.getUsableSpace();
 		if (diskFreeInBytes >= THRESHOLD) {
@@ -153,10 +152,10 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	 * @param future {@link Future} instance from handler
 	 * @param vertx  {@link Vertx} instance
 	 */
-	public void verticleHealthHandler(Future<Status> future, Vertx vertx) {
+	public void verticleHealthHandler(Promise<Status> future, Vertx vertx) {
 		LOGGER.info("Calling verticleHealthHandler for triggering UIN Checker");
 
-		vertx.eventBus().send(UinGeneratorConstant.UIN_GENERATOR_ADDRESS, UINHealthConstants.PING, response -> {
+		vertx.eventBus().request(UinGeneratorConstant.UIN_GENERATOR_ADDRESS, UINHealthConstants.PING, response -> {
 			try {
 				LOGGER.info("Calling verticleHealthHandler for triggering UIN Checker" +  (new ObjectMapper()).writeValueAsString(response.result().body()));
 			} catch (JsonProcessingException e) {
@@ -244,7 +243,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	 * @param response {@link HttpResponse}
 	 */
 	private void createResponse(JsonObject json, HttpServerResponse response) {
-		int status = isUp(json) ? 200 : 503;
+		int status = isUp((Future<CheckResult>) json) ? 200 : 503;
 
 		if (status == 503 && hasErrors(json)) {
 			status = 500;
@@ -300,6 +299,11 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	public synchronized HealthCheckHandler unregister(String name) {
 		healthChecks.unregister(name);
 		return this;
+	}
+
+	@Override
+	public HealthCheckHandler resultMapper(Function<CheckResult, Future<CheckResult>> function) {
+		return null;
 	}
 
 	/**
