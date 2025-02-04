@@ -303,6 +303,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 
 	@Override
 	public HealthCheckHandler resultMapper(Function<CheckResult, Future<CheckResult>> function) {
+		System.out.println("Entering UIN Health Check ResultMapper Method");
 		return null;
 	}
 
