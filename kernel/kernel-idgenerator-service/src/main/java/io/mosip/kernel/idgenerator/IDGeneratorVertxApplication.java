@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -119,6 +121,7 @@ public class IDGeneratorVertxApplication {
 	 */
 	private static void loadPropertiesFromConfigServer() {
 		Vertx vertx = Vertx.vertx();
+		ObjectMapper mapper = new ObjectMapper();
 		try {
 			List<ConfigStoreOptions> configStores = new ArrayList<>();
 			List<String> configUrls = ConfigUrlsBuilder.getURLs();
@@ -127,6 +130,13 @@ public class IDGeneratorVertxApplication {
 							.setConfig(new JsonObject().put(VIDGeneratorConstant.URL, url).put(
 									VIDGeneratorConstant.TIME_OUT,
 									Long.parseLong(VIDGeneratorConstant.CONFIG_SERVER_FETCH_TIME_OUT)))));
+			configStores.forEach(option -> {
+				try {
+					System.out.println("Config Store Configuration " + mapper.writeValueAsString(option));
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			});
 			ConfigRetrieverOptions configRetrieverOptions = new ConfigRetrieverOptions();
 			configStores.forEach(configRetrieverOptions::addStore);
 			ConfigRetriever retriever = ConfigRetriever.create(vertx, configRetrieverOptions.setScanPeriod(0));
