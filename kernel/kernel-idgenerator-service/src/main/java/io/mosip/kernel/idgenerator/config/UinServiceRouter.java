@@ -4,7 +4,6 @@ import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 
 import java.io.IOException;
 
-import io.vertx.core.Promise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -309,7 +308,7 @@ public class UinServiceRouter {
 		}
 	}
 
-	private void setError(RoutingContext routingContext, ServiceError error, Promise<Object> blockingHandler) {
+	private void setError(RoutingContext routingContext, ServiceError error, Future<Object> blockingHandler) {
 		ResponseWrapper<ServiceError> errorResponse = new ResponseWrapper<>();
 		errorResponse.getErrors().add(error);
 		objectMapper.registerModule(new JavaTimeModule());
