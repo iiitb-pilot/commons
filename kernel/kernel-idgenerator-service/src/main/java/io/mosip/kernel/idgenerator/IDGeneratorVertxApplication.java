@@ -154,7 +154,7 @@ public class IDGeneratorVertxApplication {
 					vertx.close();
 					startApplication();
 				} else {
-					LOGGER.warn(json.cause().getMessage() + "\n");
+					LOGGER.warn(json.cause().getMessage() + "\n" + ExceptionUtils.getStackTrace(json.cause()));
 					json.otherwiseEmpty();
 					retriever.close();
 					vertx.close();
