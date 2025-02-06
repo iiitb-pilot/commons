@@ -149,7 +149,6 @@ public class UinServiceRouter {
 				reswrp.setErrors(null);
 				blockingCodeHandler.complete();
 			} catch (UinNotFoundException e) {
-				LOGGER.info("THAM - getRouter getUin() Error Occured " );
 				ServiceError error = new ServiceError(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),
 						UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorMessage());
 				setError(routingContext, error, blockingCodeHandler);
