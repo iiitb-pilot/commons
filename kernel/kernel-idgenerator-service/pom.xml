@@ -35,7 +35,7 @@
 		<springfox.version>2.9.2</springfox.version>
 
 		<!-- vertx -->
-		<vertx.version>4.5.12</vertx.version>
+		<vertx.version>4.3.0</vertx.version>
 		<vertx.health.check.version>3.7.0</vertx.health.check.version>
 
 		<!-- javax -->

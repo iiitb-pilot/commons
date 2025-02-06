@@ -34,7 +34,7 @@
 	        <module>kernel-core</module>
 		<module>kernel-logger-logback</module>
 		<module>kernel-dataaccess-hibernate</module>
-		<module>kernel-idgenerator-prid</module>
+	<!--	<module>kernel-idgenerator-prid</module>
 		<module>kernel-idgenerator-vid</module>
 		<module>kernel-idgenerator-tokenid</module>
 		<module>kernel-idgenerator-machineid</module>
@@ -48,27 +48,28 @@
 		<module>kernel-idvalidator-uin</module>
 		<module>kernel-idvalidator-vid</module>
 		<module>kernel-idvalidator-mispid</module>
-		<module>kernel-pinvalidator</module>
+		<module>kernel-pinvalidator</module> -->
 		<module>kernel-templatemanager-velocity</module>
 		<module>kernel-pdfgenerator-itext</module>
 		<module>kernel-datamapper-orika</module>
 		<module>kernel-qrcodegenerator-zxing</module>
 		<module>kernel-transliteration-icu4j</module>
 		<module>kernel-applicanttype-api</module>
-		<module>kernel-idobjectvalidator</module>
-		<!-- 
+		<!-- 	<module>kernel-idobjectvalidator</module>
+
 		Depricated or Moved out of commons
 		<module>kernel-biometrics-api</module>
 		<module>kernel-bioapi-provider</module> 
 		<module>kernel-authcodeflowproxy-api</module> -->
 		<module>kernel-websubclient-api</module>
-		<!-- <module>kernel-otpmanager-service</module> -->
-		<module>kernel-notification-service</module>
-		<module>kernel-ridgenerator-service</module>
+		<!-- <module>kernel-otpmanager-service</module>
+		<module>kernel-notification-service</module> -->
+		<module>kernel-idgenerator-service</module>
+	<!--	<module>kernel-ridgenerator-service</module>
 		<module>kernel-idgenerator-service</module>
 		<module>kernel-pridgenerator-service</module>
 		<module>kernel-salt-generator</module>
-		<module>kernel-demographics-api</module>
+		<module>kernel-demographics-api</module> -->
 	</modules>
 
     <repositories>
