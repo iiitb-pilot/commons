@@ -239,10 +239,6 @@
 					<artifactId>jackson-annotations</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>io.netty</groupId>
-					<artifactId>netty-all</artifactId>
-				</exclusion>
-				<exclusion>
 					<groupId>io.vertx</groupId>
 					<artifactId>vertx-core</artifactId>
 				</exclusion>
