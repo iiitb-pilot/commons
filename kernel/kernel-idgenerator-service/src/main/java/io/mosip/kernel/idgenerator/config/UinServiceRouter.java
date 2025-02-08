@@ -101,8 +101,9 @@ public class UinServiceRouter {
 			routingContext.next();
 		});
 		authHandler.addAuthFilter(router, "/", HttpMethod.GET, "ID_REPOSITORY");
+		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
 		router.get().handler(routingContext -> {
-			getRouter(vertx, routingContext, isSignEnable, profile, router, workerExecutorPool);
+			getRouter(vertx, routingContext, isSignEnable, profile, router, workerExecutorPool, executor);
 		});
 		authHandler.addAuthFilter(router, "/", HttpMethod.PUT, "ID_REPOSITORY");
 		router.route().handler(BodyHandler.create());
@@ -129,10 +130,9 @@ public class UinServiceRouter {
 	}
 
 	private void getRouter(Vertx vertx, RoutingContext routingContext, boolean isSignEnable, String profile,
-			Router router, int workerExecutorPool) {
+			Router router, int workerExecutorPool, WorkerExecutor executor) {
 		ResponseWrapper<UinResponseDto> reswrp = new ResponseWrapper<>();
 		String timestamp = DateUtils.getUTCCurrentDateTimeString();
-		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
 				Long startTime = System.currentTimeMillis();
