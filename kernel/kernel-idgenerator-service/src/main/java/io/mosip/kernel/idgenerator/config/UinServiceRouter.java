@@ -132,7 +132,7 @@ public class UinServiceRouter {
 			Router router, int workerExecutorPool) {
 		ResponseWrapper<UinResponseDto> reswrp = new ResponseWrapper<>();
 		String timestamp = DateUtils.getUTCCurrentDateTimeString();
-		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 2000);
+		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
 				Long startTime = System.currentTimeMillis();
