@@ -3,6 +3,7 @@ package io.mosip.kernel.idgenerator.config;
 import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import io.vertx.core.Promise;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,19 +137,21 @@ public class UinServiceRouter {
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
 				Long startTime = System.currentTimeMillis();
+				String refId = UUID.randomUUID().toString();
 
-				LOGGER.info("THAM - Entering getRouter Method " + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - Entering getRouter Method Thread name " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - Entering getRouter Method " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 				checkAndGenerateUins(vertx);
-				LOGGER.info("THAM - getRouter checkAndGenerateUins() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - getRouter checkAndGenerateUins() Completed " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 
 				UinResponseDto uin = new UinResponseDto();
 				uin = uinGeneratorService.getUin(routingContext, startTime);
-				LOGGER.info("THAM - getRouter getUin() BLOCK Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - getRouter getUin() BLOCK Completed " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 
 				reswrp.setResponsetime(DateUtils.convertUTCToLocalDateTime(timestamp));
 				reswrp.setResponse(uin);
 				reswrp.setErrors(null);
-				blockingCodeHandler.complete(startTime);
+				blockingCodeHandler.complete(refId + ","+startTime);
 			} catch (UinNotFoundException e) {
 				ServiceError error = new ServiceError(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),
 						UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorMessage());
@@ -161,8 +164,10 @@ public class UinServiceRouter {
 			 */
 		}, false, resultHandler -> {
 			if (resultHandler.succeeded()) {
-				Long startTime = (Long) resultHandler.result();
-				LOGGER.info("THAM - getRouter resultHandler Started " + (System.currentTimeMillis() - startTime) + " ms" );
+				String[] args = resultHandler.result().toString().split(",");
+				Long startTime = Long.parseLong(args[1]);
+				String refId = args[0];
+				LOGGER.info("THAM - getRouter resultHandler Started " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 				if (isSignEnable) {
 					String signedData = null;
 					String resWrpJsonString = null;
@@ -186,7 +191,7 @@ public class UinServiceRouter {
 					signedData = cryptoManagerResponseDto.getData();
 					routingContext.response().putHeader("response-signature", signedData);
 				}
-				LOGGER.info("THAM - getRouter resultHandler Sign Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - getRouter resultHandler Sign Completed " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 
 				try {
 					routingContext.response().putHeader("content-type", UinGeneratorConstant.APPLICATION_JSON)
@@ -194,7 +199,7 @@ public class UinServiceRouter {
 				} catch (JsonProcessingException e) {
 
 				}
-				LOGGER.info("THAM - getRouter getUin() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - getRouter getUin() Completed " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 
 			} else {
 				try {
