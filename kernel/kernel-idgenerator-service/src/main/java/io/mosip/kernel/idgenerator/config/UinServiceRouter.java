@@ -101,9 +101,8 @@ public class UinServiceRouter {
 			routingContext.next();
 		});
 		authHandler.addAuthFilter(router, "/", HttpMethod.GET, "ID_REPOSITORY");
-		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
 		router.get().handler(routingContext -> {
-			getRouter(vertx, routingContext, isSignEnable, profile, router, workerExecutorPool, executor);
+			getRouter(vertx, routingContext, isSignEnable, profile, router, workerExecutorPool);
 		});
 		authHandler.addAuthFilter(router, "/", HttpMethod.PUT, "ID_REPOSITORY");
 		router.route().handler(BodyHandler.create());
@@ -130,24 +129,26 @@ public class UinServiceRouter {
 	}
 
 	private void getRouter(Vertx vertx, RoutingContext routingContext, boolean isSignEnable, String profile,
-			Router router, int workerExecutorPool, WorkerExecutor executor) {
+			Router router, int workerExecutorPool) {
 		ResponseWrapper<UinResponseDto> reswrp = new ResponseWrapper<>();
 		String timestamp = DateUtils.getUTCCurrentDateTimeString();
+		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
 				Long startTime = System.currentTimeMillis();
+
 				LOGGER.info("THAM - Entering getRouter Method " + (System.currentTimeMillis() - startTime) + " ms" );
 				checkAndGenerateUins(vertx);
 				LOGGER.info("THAM - getRouter checkAndGenerateUins() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
 
 				UinResponseDto uin = new UinResponseDto();
 				uin = uinGeneratorService.getUin(routingContext, startTime);
-				LOGGER.info("THAM - getRouter getUin() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+				LOGGER.info("THAM - getRouter getUin() BLOCK Completed " + (System.currentTimeMillis() - startTime) + " ms" );
 
 				reswrp.setResponsetime(DateUtils.convertUTCToLocalDateTime(timestamp));
 				reswrp.setResponse(uin);
 				reswrp.setErrors(null);
-				blockingCodeHandler.complete();
+				blockingCodeHandler.complete(startTime);
 			} catch (UinNotFoundException e) {
 				ServiceError error = new ServiceError(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),
 						UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorMessage());
@@ -160,6 +161,8 @@ public class UinServiceRouter {
 			 */
 		}, false, resultHandler -> {
 			if (resultHandler.succeeded()) {
+				Long startTime = (Long) resultHandler.result();
+				LOGGER.info("THAM - getRouter resultHandler Started " + (System.currentTimeMillis() - startTime) + " ms" );
 				if (isSignEnable) {
 					String signedData = null;
 					String resWrpJsonString = null;
@@ -183,12 +186,16 @@ public class UinServiceRouter {
 					signedData = cryptoManagerResponseDto.getData();
 					routingContext.response().putHeader("response-signature", signedData);
 				}
+				LOGGER.info("THAM - getRouter resultHandler Sign Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+
 				try {
 					routingContext.response().putHeader("content-type", UinGeneratorConstant.APPLICATION_JSON)
 							.setStatusCode(200).end(objectMapper.writeValueAsString(reswrp));
 				} catch (JsonProcessingException e) {
 
 				}
+				LOGGER.info("THAM - getRouter getUin() Completed " + (System.currentTimeMillis() - startTime) + " ms" );
+
 			} else {
 				try {
 					routingContext.response().putHeader("content-type", UinGeneratorConstant.APPLICATION_JSON)
@@ -199,7 +206,6 @@ public class UinServiceRouter {
 				}
 			}
 		});
-
 	}
 
 	/**
