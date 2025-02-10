@@ -151,7 +151,22 @@ public class UinServiceRouter {
 				reswrp.setResponsetime(DateUtils.convertUTCToLocalDateTime(timestamp));
 				reswrp.setResponse(uin);
 				reswrp.setErrors(null);
-
+				blockingCodeHandler.complete(refId + ","+startTime);
+			} catch (UinNotFoundException e) {
+				ServiceError error = new ServiceError(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),
+						UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorMessage());
+				setError(routingContext, error, blockingCodeHandler);
+			}
+			/*
+			 * catch (Exception e) { ExceptionUtils.logRootCause(e); ServiceError error =
+			 * new ServiceError(UinGeneratorErrorCode.INTERNAL_SERVER_ERROR.getErrorCode(),
+			 * e.getMessage()); setError(routingContext, error, blockingCodeHandler); }
+			 */
+		}, false, resultHandler -> {
+			if (resultHandler.succeeded()) {
+				String[] args = resultHandler.result().toString().split(",");
+				Long startTime = Long.parseLong(args[1]);
+				String refId = args[0];
 				LOGGER.info("THAM - getRouter resultHandler Started " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 				if (isSignEnable) {
 					String signedData = null;
@@ -186,18 +201,16 @@ public class UinServiceRouter {
 				}
 				LOGGER.info("THAM - getRouter getUin() Completed " + Thread.currentThread().getName() + " with RefId " + refId + " "  + (System.currentTimeMillis() - startTime) + " ms" );
 
-				blockingCodeHandler.complete();
-			} catch (UinNotFoundException e) {
-				ServiceError error = new ServiceError(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),
-						UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorMessage());
-				setError(routingContext, error, blockingCodeHandler);
+			} else {
+				try {
+					routingContext.response().putHeader("content-type", UinGeneratorConstant.APPLICATION_JSON)
+							.setStatusCode(200)
+							.end(objectMapper.writeValueAsString(resultHandler.cause().getMessage()));
+				} catch (JsonProcessingException e1) {
+
 			}
-			/*
-			 * catch (Exception e) { ExceptionUtils.logRootCause(e); ServiceError error =
-			 * new ServiceError(UinGeneratorErrorCode.INTERNAL_SERVER_ERROR.getErrorCode(),
-			 * e.getMessage()); setError(routingContext, error, blockingCodeHandler); }
-			 */
-		}, false, null);
+			}
+		});
 	}
 
 	/**
@@ -322,7 +335,7 @@ public class UinServiceRouter {
 		try {
 			routingContext.response().putHeader("content-type", UinGeneratorConstant.APPLICATION_JSON)
 					.setStatusCode(200).end(objectMapper.writeValueAsString(errorResponse));
-			blockingHandler.complete();
+			blockingHandler.fail(objectMapper.writeValueAsString(errorResponse));
 		} catch (JsonProcessingException e1) {
 
 		}
