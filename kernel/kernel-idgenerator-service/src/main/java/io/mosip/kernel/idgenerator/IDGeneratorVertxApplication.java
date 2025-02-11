@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import io.mosip.kernel.core.exception.ExceptionUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -143,7 +144,7 @@ public class IDGeneratorVertxApplication {
 					vertx.close();
 					startApplication();
 				} else {
-					LOGGER.warn(json.cause().getMessage() + "\n");
+					LOGGER.warn(json.cause().getMessage() + "\n" + ExceptionUtils.getStackTrace(json.cause()));
 					json.otherwiseEmpty();
 					retriever.close();
 					vertx.close();
@@ -151,7 +152,7 @@ public class IDGeneratorVertxApplication {
 				}
 			});
 		} catch (Exception exception) {
-			LOGGER.warn(exception.getMessage() + "\n");
+			LOGGER.warn(exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
 			vertx.close();
 			startApplication();
 		}
