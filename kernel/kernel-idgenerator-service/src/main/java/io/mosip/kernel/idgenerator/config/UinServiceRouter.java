@@ -130,13 +130,14 @@ public class UinServiceRouter {
 		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
+				Long startTime = System.currentTimeMillis();
 				checkAndGenerateUins(vertx);
 				UinResponseDto uin = new UinResponseDto();
 				uin = uinGeneratorService.getUin(routingContext);
 				reswrp.setResponsetime(DateUtils.convertUTCToLocalDateTime(timestamp));
 				reswrp.setResponse(uin);
 				reswrp.setErrors(null);
-				blockingCodeHandler.complete();
+				blockingCodeHandler.complete(startTime);
 			} catch (UinNotFoundException e) {
 				ServiceError error = new ServiceError(UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorCode(),
 						UinGeneratorErrorCode.UIN_NOT_FOUND.getErrorMessage());
@@ -149,7 +150,8 @@ public class UinServiceRouter {
 			 */
 		}, false, resultHandler -> {
 			if (resultHandler.succeeded()) {
-				LOGGER.info("THAM - getRouter resultHandler Started " + Thread.currentThread().getName());
+				Long startTime = Long.parseLong(resultHandler.result().toString());
+				LOGGER.info("THAM - getRouter resultHandler Started " + Thread.currentThread().getName() + " "  + (System.currentTimeMillis() - startTime) + " ms");
 
 				if (isSignEnable) {
 					String signedData = null;
@@ -174,6 +176,8 @@ public class UinServiceRouter {
 					signedData = cryptoManagerResponseDto.getData();
 					routingContext.response().putHeader("response-signature", signedData);
 				}
+				LOGGER.info("THAM - getRouter resultHandler Sign Completed " + Thread.currentThread().getName() +  " "  + (System.currentTimeMillis() - startTime) + " ms" );
+
 				try {
 					routingContext.response().putHeader("content-type", UinGeneratorConstant.APPLICATION_JSON)
 							.setStatusCode(200).end(objectMapper.writeValueAsString(reswrp));
