@@ -1,20 +1,10 @@
 package io.mosip.kernel.idgenerator.config;
 
-import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
-
-import java.io.IOException;
-
-import io.vertx.core.Promise;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 import io.mosip.kernel.core.authmanager.authadapter.spi.VertxAuthenticationProvider;
 import io.mosip.kernel.core.exception.ExceptionUtils;
 import io.mosip.kernel.core.exception.ServiceError;
@@ -34,7 +24,7 @@ import io.mosip.kernel.uingenerator.exception.UinNotFoundException;
 import io.mosip.kernel.uingenerator.exception.UinNotIssuedException;
 import io.mosip.kernel.uingenerator.exception.UinStatusNotFoundException;
 import io.mosip.kernel.uingenerator.service.UinService;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.http.HttpMethod;
@@ -44,6 +34,13 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * Router for vertx server
@@ -130,7 +127,7 @@ public class UinServiceRouter {
 			Router router, int workerExecutorPool) {
 		ResponseWrapper<UinResponseDto> reswrp = new ResponseWrapper<>();
 		String timestamp = DateUtils.getUTCCurrentDateTimeString();
-		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool, 1);
+		WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-uin", workerExecutorPool);
 		executor.executeBlocking(blockingCodeHandler -> {
 			try {
 				checkAndGenerateUins(vertx);

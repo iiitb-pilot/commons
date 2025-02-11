@@ -1,9 +1,5 @@
 package io.mosip.kernel.vidgenerator.verticle;
 
-import io.vertx.core.Promise;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
-
 import io.mosip.kernel.core.idgenerator.spi.VidGenerator;
 import io.mosip.kernel.vidgenerator.constant.EventType;
 import io.mosip.kernel.vidgenerator.constant.VidLifecycleStatus;
@@ -11,9 +7,11 @@ import io.mosip.kernel.vidgenerator.entity.VidEntity;
 import io.mosip.kernel.vidgenerator.generator.VidWriter;
 import io.mosip.kernel.vidgenerator.utils.VIDMetaDataUtil;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
 public class VidPopulatorVerticle extends AbstractVerticle {
 

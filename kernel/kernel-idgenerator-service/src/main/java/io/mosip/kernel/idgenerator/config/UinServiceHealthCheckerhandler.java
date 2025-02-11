@@ -1,7 +1,5 @@
 package io.mosip.kernel.idgenerator.config;
 
-import static io.vertx.ext.healthchecks.CheckResult.isUp;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -237,7 +235,7 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 	 * @param response {@link HttpResponse}
 	 */
 	private void createResponse(JsonObject json, HttpServerResponse response) {
-		int status = isUp((Future<CheckResult>) json) ? 200 : 503;
+		int status = isUp(json) ? 200 : 503;
 
 		if (status == 503 && hasErrors(json)) {
 			status = 500;
@@ -356,6 +354,15 @@ public class UinServiceHealthCheckerhandler implements HealthCheckHandler {
 		public JsonObject build() {
 			return jsonObject;
 		}
+
+	}
+
+	public boolean isUp(JsonObject json) {
+		// In case of success
+		// Case 1) no result -> UP
+		// Case 2) result with "status" == "UP" -> UP
+		// Case 3) result with "outcome" == "UP" -> UP
+		return json == null || "UP".equals(json.getString("status")) || "UP".equals(json.getString("outcome"));
 
 	}
 
