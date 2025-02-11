@@ -1,13 +1,5 @@
 package io.mosip.kernel.idgenerator.config;
 
-import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
-
-import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,7 +24,7 @@ import io.mosip.kernel.uingenerator.exception.UinNotFoundException;
 import io.mosip.kernel.uingenerator.exception.UinNotIssuedException;
 import io.mosip.kernel.uingenerator.exception.UinStatusNotFoundException;
 import io.mosip.kernel.uingenerator.service.UinService;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.http.HttpMethod;
@@ -42,6 +34,13 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * Router for vertx server
@@ -297,7 +296,7 @@ public class UinServiceRouter {
 		}
 	}
 
-	private void setError(RoutingContext routingContext, ServiceError error, Future<Object> blockingHandler) {
+	private void setError(RoutingContext routingContext, ServiceError error, Promise<Object> blockingHandler) {
 		ResponseWrapper<ServiceError> errorResponse = new ResponseWrapper<>();
 		errorResponse.getErrors().add(error);
 		objectMapper.registerModule(new JavaTimeModule());
