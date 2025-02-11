@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import io.vertx.core.Promise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -72,11 +71,9 @@ public class VidFetcherRouter {
 		Router router = Router.router(vertx);
 		authHandler.addAuthFilter(router, "/", HttpMethod.GET, "ID_REPOSITORY");
 		router.get().handler(routingContext -> {
-			Long startTime = System.currentTimeMillis();
-			LOGGER.info("THAM2 - publishing event to CHECKPOOL" + (System.currentTimeMillis() - startTime) + " ms");
+			LOGGER.info("publishing event to CHECKPOOL");
 			// send a publish event to vid pool checker
 			vertx.eventBus().publish(EventType.CHECKPOOL, EventType.CHECKPOOL);
-			LOGGER.info("THAM2 - publishing event COMPLETED" + (System.currentTimeMillis() - startTime) + " ms");
 			routingContext.response().headers().add("Content-Type", "application/json");
 			ResponseWrapper<VidFetchResponseDto> reswrp = new ResponseWrapper<>();
 			WorkerExecutor executor = vertx.createSharedWorkerExecutor("get-vid", workerExecutorPool);
@@ -109,13 +106,9 @@ public class VidFetcherRouter {
 						return;
 					}
 				}
-				LOGGER.info("THAM2 - Date Validation Completed" + (System.currentTimeMillis() - startTime) + " ms");
-
 				VidFetchResponseDto vidFetchResponseDto = null;
 				try {
 					vidFetchResponseDto = vidService.fetchVid(expiryTime, routingContext);
-					LOGGER.info("THAM2 - Fetch VID Completed" + (System.currentTimeMillis() - startTime) + " ms");
-
 				} catch (VidGeneratorServiceException exception) {
 					ServiceError error = new ServiceError(exception.getErrorCode(), exception.getMessage());
 					setError(routingContext, error, blockingCodeHandler);
@@ -143,7 +136,7 @@ public class VidFetcherRouter {
 		return router;
 	}
 
-	private void setError(RoutingContext routingContext, ServiceError error, Promise<Object> blockingCodeHandler) {
+	private void setError(RoutingContext routingContext, ServiceError error, Future<Object> blockingCodeHandler) {
 		ResponseWrapper<ServiceError> errorResponse = new ResponseWrapper<>();
 		errorResponse.getErrors().add(error);
 		objectMapper.registerModule(new JavaTimeModule());

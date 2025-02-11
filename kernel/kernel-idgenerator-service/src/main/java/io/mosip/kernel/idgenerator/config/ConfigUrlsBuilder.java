@@ -45,7 +45,6 @@ public class ConfigUrlsBuilder {
 			url = url + VIDGeneratorConstant.FORWARD_SLASH + config + VIDGeneratorConstant.FORWARD_SLASH
 					+ getProperty(VIDGeneratorConstant.SPRING_PROFILES_ACTIVE) + VIDGeneratorConstant.FORWARD_SLASH
 					+ getProperty(VIDGeneratorConstant.SPRING_CLOUD_CONFIG_LABEL);
-			System.out.println("URL is : " + url);
 			urlS.add(url);
 		});
 		return urlS;

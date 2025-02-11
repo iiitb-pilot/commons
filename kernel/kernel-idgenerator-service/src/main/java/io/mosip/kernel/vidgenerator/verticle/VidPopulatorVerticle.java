@@ -1,6 +1,5 @@
 package io.mosip.kernel.vidgenerator.verticle;
 
-import io.vertx.core.Promise;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -39,7 +38,7 @@ public class VidPopulatorVerticle extends AbstractVerticle {
 	}
 
 	@Override
-	public void start(Promise<Void> startFuture) throws Exception {
+	public void start(Future<Void> startFuture) throws Exception {
 		vertx.eventBus().consumer(EventType.GENERATEPOOL, handler -> {
 			long noOfFreeVids = Long.parseLong(handler.body().toString());
 			long noOfVidsToGenerate = vidToGenerate - noOfFreeVids;

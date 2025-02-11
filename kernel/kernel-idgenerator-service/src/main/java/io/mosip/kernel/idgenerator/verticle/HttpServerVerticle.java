@@ -1,6 +1,5 @@
 package io.mosip.kernel.idgenerator.verticle;
 
-import io.vertx.core.Promise;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -59,9 +58,8 @@ public class HttpServerVerticle extends AbstractVerticle {
 	 * @see io.vertx.core.AbstractVerticle#start(io.vertx.core.Future)
 	 */
 	@Override
-	public void start(Promise<Void> future) {
+	public void start(Future<Void> future) {
 		HttpServer httpServer = vertx.createHttpServer();
-		LOGGER.info("Calling HttpServerVerticle for triggering UIN Checker");
 
 		// Parent router so that global options can be applied to it in future
 		Router parentRouter = Router.router(vertx);

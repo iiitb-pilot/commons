@@ -11,9 +11,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.kernel.core.exception.ExceptionUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -122,7 +119,6 @@ public class IDGeneratorVertxApplication {
 	 */
 	private static void loadPropertiesFromConfigServer() {
 		Vertx vertx = Vertx.vertx();
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			List<ConfigStoreOptions> configStores = new ArrayList<>();
 			List<String> configUrls = ConfigUrlsBuilder.getURLs();
@@ -131,13 +127,6 @@ public class IDGeneratorVertxApplication {
 							.setConfig(new JsonObject().put(VIDGeneratorConstant.URL, url).put(
 									VIDGeneratorConstant.TIME_OUT,
 									Long.parseLong(VIDGeneratorConstant.CONFIG_SERVER_FETCH_TIME_OUT)))));
-			configStores.forEach(option -> {
-				try {
-					System.out.println("Config Store Configuration " + mapper.writeValueAsString(option));
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			});
 			ConfigRetrieverOptions configRetrieverOptions = new ConfigRetrieverOptions();
 			configStores.forEach(configRetrieverOptions::addStore);
 			ConfigRetriever retriever = ConfigRetriever.create(vertx, configRetrieverOptions.setScanPeriod(0));
@@ -154,7 +143,7 @@ public class IDGeneratorVertxApplication {
 					vertx.close();
 					startApplication();
 				} else {
-					LOGGER.warn(json.cause().getMessage() + "\n" + ExceptionUtils.getStackTrace(json.cause()));
+					LOGGER.warn(json.cause().getMessage() + "\n");
 					json.otherwiseEmpty();
 					retriever.close();
 					vertx.close();
@@ -162,7 +151,7 @@ public class IDGeneratorVertxApplication {
 				}
 			});
 		} catch (Exception exception) {
-			LOGGER.warn(exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
+			LOGGER.warn(exception.getMessage() + "\n");
 			vertx.close();
 			startApplication();
 		}
@@ -184,7 +173,7 @@ public class IDGeneratorVertxApplication {
 		Verticle[] workerVerticles = { new VidPoolCheckerVerticle(context), new VidPopulatorVerticle(context),
 				new VidExpiryVerticle(context), new VidIsolatorVerticle(context) };
 		Stream.of(workerVerticles).forEach(verticle -> deploy(verticle, workerOptions, vertx));
-		vertx.setTimer(10000, handler -> initVIDPool());
+		vertx.setTimer(1000, handler -> initVIDPool());
 		Verticle[] uinVerticles = { new UinGeneratorVerticle(context),new UinTransferVerticle(context)};
 		Stream.of(uinVerticles).forEach(verticle -> vertx.deployVerticle(verticle, stringAsyncResult -> {
 			if (stringAsyncResult.succeeded()) {
@@ -194,7 +183,7 @@ public class IDGeneratorVertxApplication {
 						+ stringAsyncResult.cause());
 			}
 		}));
-		vertx.setTimer(10000, handler -> initUINPool());
+		vertx.setTimer(1000, handler -> initUINPool());
 	}
 
 	@PostConstruct

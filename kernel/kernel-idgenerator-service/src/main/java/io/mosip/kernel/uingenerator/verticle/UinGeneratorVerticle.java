@@ -50,14 +50,11 @@ public class UinGeneratorVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		vertx.eventBus().consumer(UinGeneratorConstant.UIN_GENERATOR_ADDRESS, receivedMessage -> {
-			LOGGER.info("THAM1 - receivedMessage.body()" + receivedMessage.body());
-			LOGGER.info("THAM1 - locked.get()" + locked.get());
-			Long startTime = System.currentTimeMillis();
-			if (receivedMessage.body().equals(UinGeneratorConstant.GENERATE_UIN) && uinProcesser.shouldGenerateUins(startTime)
+			if (receivedMessage.body().equals(UinGeneratorConstant.GENERATE_UIN) && uinProcesser.shouldGenerateUins()
 					&& !locked.get()) {
 				vertx.executeBlocking(future -> {
 					locked.set(true);
-					uinProcesser.generateUins(startTime);
+					uinProcesser.generateUins();
 					future.complete();
 				}, result -> {
 					if (result.succeeded()) {
