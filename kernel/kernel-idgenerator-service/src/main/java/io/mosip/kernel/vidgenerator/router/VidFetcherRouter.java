@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import io.vertx.core.Promise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -136,7 +137,7 @@ public class VidFetcherRouter {
 		return router;
 	}
 
-	private void setError(RoutingContext routingContext, ServiceError error, Future<Object> blockingCodeHandler) {
+	private void setError(RoutingContext routingContext, ServiceError error, Promise<Object> blockingCodeHandler) {
 		ResponseWrapper<ServiceError> errorResponse = new ResponseWrapper<>();
 		errorResponse.getErrors().add(error);
 		objectMapper.registerModule(new JavaTimeModule());

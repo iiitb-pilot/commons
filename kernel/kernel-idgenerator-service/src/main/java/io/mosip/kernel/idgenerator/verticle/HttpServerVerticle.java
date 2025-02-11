@@ -1,5 +1,6 @@
 package io.mosip.kernel.idgenerator.verticle;
 
+import io.vertx.core.Promise;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -58,7 +59,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 	 * @see io.vertx.core.AbstractVerticle#start(io.vertx.core.Future)
 	 */
 	@Override
-	public void start(Future<Void> future) {
+	public void start(Promise<Void> future) {
 		HttpServer httpServer = vertx.createHttpServer();
 
 		// Parent router so that global options can be applied to it in future

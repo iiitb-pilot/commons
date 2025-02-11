@@ -2,6 +2,7 @@ package io.mosip.kernel.vidgenerator.verticle;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.vertx.core.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -9,10 +10,6 @@ import io.mosip.kernel.idgenerator.verticle.HttpServerVerticle;
 import io.mosip.kernel.vidgenerator.constant.EventType;
 import io.mosip.kernel.vidgenerator.constant.VidLifecycleStatus;
 import io.mosip.kernel.vidgenerator.service.VidService;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
-import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -41,7 +38,7 @@ public class VidPoolCheckerVerticle extends AbstractVerticle {
 	private AtomicBoolean locked = new AtomicBoolean(false);
 
 	@Override
-	public void start(Future<Void> startFuture) {
+	public void start(Promise<Void> startFuture) {
 		EventBus eventBus = vertx.eventBus();
 		MessageConsumer<String> checkPoolConsumer = eventBus.consumer(EventType.CHECKPOOL);
 		DeliveryOptions deliveryOptions = new DeliveryOptions();
@@ -51,7 +48,7 @@ public class VidPoolCheckerVerticle extends AbstractVerticle {
 			LOGGER.info("no of vid free present are {}", noOfFreeVids);
 			if (noOfFreeVids < threshold && !locked.get()) {
 				locked.set(true);
-				eventBus.send(EventType.GENERATEPOOL, noOfFreeVids, deliveryOptions, replyHandler -> {
+				eventBus.request(EventType.GENERATEPOOL, noOfFreeVids, deliveryOptions, replyHandler -> {
 					if (replyHandler.succeeded()) {
 						locked.set(false);
 						LOGGER.info("population of pool done");
@@ -76,7 +73,7 @@ public class VidPoolCheckerVerticle extends AbstractVerticle {
 			LOGGER.info("is eligible for pool {}", isEligibleForPool);
 			if (isEligibleForPool) {
 				locked.set(true);
-				eventBus.send(EventType.GENERATEPOOL, noOfFreeVids, deliveryOptions, replyHandler -> {
+				eventBus.request(EventType.GENERATEPOOL, noOfFreeVids, deliveryOptions, replyHandler -> {
 					if (replyHandler.succeeded()) {
 						locked.set(false);
 						deployHttpVerticle(start);
